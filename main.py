@@ -5,16 +5,22 @@ from tldextract import extract
 from queue import Queue
 from tqdm import tqdm
 import pandas as pd
+import time
 
-# Set to store visited URLs
 visited_urls = set()
-# List to store pages with CSS errors
 error_pages = []
-# Maximum number of pages to crawl
 max_pages = 10000
 
-# Starting URL (replace with the target website)
-start_url = 'https://taleblou.ir/'
+start_url = 'https://www.example.com'  # Replace with the target website
+parsed_start = extract(start_url)
+domain_start = parsed_start.domain
+suffix_start = parsed_start.suffix
+
+visited_urls = set()
+error_pages = []
+max_pages = 10000
+
+start_url = 'https://www.example.com'  # Replace with the target website
 parsed_start = extract(start_url)
 domain_start = parsed_start.domain
 suffix_start = parsed_start.suffix
@@ -28,6 +34,18 @@ def is_valid(url):
     if not bool(parsed.netloc) or not bool(parsed.scheme):
         return False
     return is_same_domain(url, domain_start, suffix_start)
+
+def check_resource(url):
+    try:
+        response = requests.head(url, allow_redirects=True)
+        response.raise_for_status()
+    except requests.exceptions.HTTPError as http_err:
+        return response.status_code
+    except Exception as err:
+        print(f'Resource error on {url}: {err}')
+        return None
+    return None
+
 
 def crawl():
     queue = Queue()
@@ -49,41 +67,62 @@ def crawl():
             print(f'An error occurred: {err}')
             continue
         soup = BeautifulSoup(response.content, 'html.parser')
-        # Find all CSS files linked in the page
+        # Collect all resource links
+        resource_links = []
+        # Check CSS links
         css_links = [link['href'] for link in soup.find_all('link', rel='stylesheet')]
-        css_links = [urljoin(url, link) for link in css_links if is_valid(link)]
-        # Check each CSS file for errors
-        css_error = False
-        for css_url in css_links:
-            try:
-                css_response = requests.get(css_url)
-                css_response.raise_for_status()
-            except requests.exceptions.HTTPError as http_err:
-                print(f'CSS error on {url}: {http_err}')
-                error_pages.append(url)
-                css_error = True
-                break
-            except Exception as err:
-                print(f'CSS error on {url}: {err}')
-                error_pages.append(url)
-                css_error = True
-                break
+        resource_links.extend(css_links)
+        # Check JavaScript links
+        js_links = [script['src'] for script in soup.find_all('script', src=True)]
+        resource_links.extend(js_links)
+        # Check image links
+        img_links = [img['src'] for img in soup.find_all('img', src=True)]
+        resource_links.extend(img_links)
+        # Check video links
+        video_tags = soup.find_all('video')
+        video_links = []
+        for video in video_tags:
+            src = video.get('src')
+            if src:
+                video_links.append(src)
+            sources = video.find_all('source')
+            for source in sources:
+                src = source.get('src')
+                if src:
+                    video_links.append(src)
+        resource_links.extend(video_links)
+        # Check iframe links
+        iframe_links = [iframe['src'] for iframe in soup.find_all('iframe', src=True)]
+        resource_links.extend(iframe_links)
+        # Check each resource
+        for link in resource_links:
+            full_url = urljoin(url, link)
+            if is_valid(full_url):
+                error_code = check_resource(full_url)
+                if error_code and 400 <= error_code < 600:
+                    error_pages.append({
+                        'Page_URL': url,
+                        'Resource_URL': full_url,
+                        'Error_Code': error_code
+                    })
         # Find all links in the page and add to queue
         links = [link.get('href') for link in soup.find_all('a')]
         links = [urljoin(url, link) for link in links if is_valid(link)]
         for link in links:
             if link not in visited_urls:
                 queue.put(link)
+        # Optional: Add a delay to avoid overwhelming the server
+        # time.sleep(1)
         progress.update(1)
     progress.close()
 
 # Start crawling
 crawl()
 
-# Save the list of error pages to a CSV file using pandas
+# Save the error information to a CSV file using pandas
 if error_pages:
-    df = pd.DataFrame(error_pages, columns=['Error_Page_URL'])
-    df.to_csv('error_pages.csv', index=False)
+    df = pd.DataFrame(error_pages)
+    df.to_csv('error_details.csv', index=False)
 else:
     print("No error pages to save.")
 
