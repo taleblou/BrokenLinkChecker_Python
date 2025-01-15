@@ -1,131 +1,100 @@
-# **Broken Link Checker in Python**
+# **Web Crawler Script**
 
-A simple Python script to check for broken links in a webpage.
+## **Overview**
 
-## **Table of Contents**
+This script is a Python-based web crawler designed to traverse a website and identify broken resource links such as CSS, JavaScript, images, videos, and iframes. It also checks if the pages belong to the same domain as the starting URL and saves a detailed report of error pages in a CSV file.
 
-* [Description](https://chat.deepseek.com/a/chat/s/1ed586b1-7aa1-4be6-a2b7-d5270a3c0ad8#description)  
-* [Prerequisites](https://chat.deepseek.com/a/chat/s/1ed586b1-7aa1-4be6-a2b7-d5270a3c0ad8#prerequisites)  
-* [Installation](https://chat.deepseek.com/a/chat/s/1ed586b1-7aa1-4be6-a2b7-d5270a3c0ad8#installation)  
-* [Usage](https://chat.deepseek.com/a/chat/s/1ed586b1-7aa1-4be6-a2b7-d5270a3c0ad8#usage)  
-* [Example](https://chat.deepseek.com/a/chat/s/1ed586b1-7aa1-4be6-a2b7-d5270a3c0ad8#example)  
-* [Features](https://chat.deepseek.com/a/chat/s/1ed586b1-7aa1-4be6-a2b7-d5270a3c0ad8#features)  
-* [Note on Rate Limiting](https://chat.deepseek.com/a/chat/s/1ed586b1-7aa1-4be6-a2b7-d5270a3c0ad8#note-on-rate-limiting)  
-* [Troubleshooting](https://chat.deepseek.com/a/chat/s/1ed586b1-7aa1-4be6-a2b7-d5270a3c0ad8#troubleshooting)  
-* [Future Enhancements](https://chat.deepseek.com/a/chat/s/1ed586b1-7aa1-4be6-a2b7-d5270a3c0ad8#future-enhancements)  
-* [Acknowledgments](https://chat.deepseek.com/a/chat/s/1ed586b1-7aa1-4be6-a2b7-d5270a3c0ad8#acknowledgments)  
-* [License](https://chat.deepseek.com/a/chat/s/1ed586b1-7aa1-4be6-a2b7-d5270a3c0ad8#license)  
-* [Contact](https://chat.deepseek.com/a/chat/s/1ed586b1-7aa1-4be6-a2b7-d5270a3c0ad8#contact)
-
-## **Description**
-
-This script is designed to find and report broken links (HTTP status codes 404, 500, etc.) on a given webpage. It uses the `requests` library to fetch URLs and `BeautifulSoup` from `bs4` to parse HTML content and extract links.
-
-## **Prerequisites**
-
-* Python 3.x  
-* `requests` library  
-* `beautifulsoup4` library  
-* `urllib3` library
-
-You can install the required libraries using:
-
-bash
-
-Copy  
-pip install requests beautifulsoup4 urllib3
-
-## **Installation**
-
-1. Clone the repository:  
-2. bash  
-3. Copy  
-4. git clone https://github.com/taleblou/BrokenLinkChecker\_Python.git  
-5. Navigate to the project directory:  
-6. bash  
-7. Copy  
-8. cd BrokenLinkChecker\_Python
-
-## **Usage**
-
-Run the script from the command line:
-
-bash
-
-Copy  
-python broken\_link\_checker.py \[url\] \[output\_file (optional)\]
-
-* **`[url]`**: The URL of the webpage to check.  
-* **`[output_file (optional)]`**: The path to the CSV file where the results will be saved.
-
-**Example:**
-
-bash
-
-Copy  
-python broken\_link\_checker.py https://example.com results.csv
-
-## **Example**
-
-bash
-
-Copy  
-python broken\_link\_checker.py https://example.com  
-**Output:**  
-Copy
-
-Checking links on https://example.com
-
-Total links found: 50
-
-Broken links found: 5
-
-Broken Links:
-
-1\. https://example.com/nonexistent-page (404)
-
-2\. https://example.com/broken-link (404)
-
-3\. https://example.com/error-page (500)
-
-4\. https://example.com/another-broken-link (404)
-
-5\. https://example.com/yet-another-broken-link (404)
+---
 
 ## **Features**
 
-* Checks for broken links on a given webpage.  
-* Supports recursive checking (checks links on linked pages).  
-* Saves results to a CSV file for further analysis.  
-* Handles common HTTP errors and status codes.
+* **Domain Filtering:** Ensures the crawler stays within the target domain.  
+* **Resource Checking:** Verifies the availability of various resource links (e.g., CSS, JS, images, videos, iframes).  
+* **Error Reporting:** Logs details of broken resources (HTTP status codes 400–599).  
+* **Concurrent Crawling:** Uses a queue to manage page visits.  
+* **Progress Tracking:** Displays a progress bar using `tqdm`.  
+* **CSV Export:** Saves error details in a CSV file for easy review.
 
-## **Note on Rate Limiting**
+---
 
-Some websites may have rate limiting in place, which could cause the script to return errors or incomplete results. If you encounter such issues, consider adding a delay between requests or using a proxy.
+## **Requirements**
 
-## **Troubleshooting**
+To run this script, you need the following Python libraries installed:
 
-* **Missing Libraries**: Ensure all required libraries are installed.  
-* **HTTP Errors**: Some links may return HTTP errors due to temporary issues on the server side.  
-* **SSL Certificate Warnings**: Add `verify=False` in the `requests.get()` method if you encounter SSL certificate warnings.
+* `requests`: For making HTTP requests.  
+* `BeautifulSoup` (from `bs4`): For parsing HTML content.  
+* `tldextract`: For extracting domain and suffix information.  
+* `tqdm`: For displaying a progress bar.  
+* `pandas`: For saving error reports to a CSV file.
 
-## **Future Enhancements**
+You can install the required packages with:
 
-* Add support for GUI interface.  
-* Implement multi-threading for faster link checking.  
-* Support for checking links in PDFs or other document formats.  
-* Option to check links in a specific section of the webpage.
+bash
 
-## **Acknowledgments**
+Copy code
 
-* The script uses the `requests` library for handling HTTP requests.  
-* The `BeautifulSoup` library from `bs4` is used for parsing HTML content.
+`pip install requests beautifulsoup4 tldextract tqdm pandas`
+
+---
+
+## **How to Use**
+
+**Set the Starting URL:** Replace `https://www.example.com` with the URL of the website you want to crawl:  
+python  
+Copy code  
+`start_url = 'https://www.example.com'`
+
+1. 
+
+**Configure Maximum Pages:** Update the `max_pages` variable to limit the number of pages to crawl (default is 10,000):  
+python  
+Copy code  
+`max_pages = 10000`
+
+2. 
+
+**Run the Script:** Execute the script in your Python environment:  
+bash  
+Copy code  
+`python main.py`
+
+3.   
+4. **View Results:**  
+   * If broken resource links are found, they will be saved to a file named `error_details.csv` in the script's directory.  
+   * If no errors are detected, a message will indicate no error pages were saved.
+
+---
+
+## **Output**
+
+The output CSV file (`error_details.csv`) contains the following columns:
+
+* **Page\_URL:** The page where the broken resource was found.  
+* **Resource\_URL:** The URL of the broken resource.  
+* **Error\_Code:** The HTTP status code indicating the error.
+
+---
+
+## **Notes**
+
+* **Politeness:** Consider adding a delay (`time.sleep(1)`) between requests to avoid overloading the target server.  
+* **Error Handling:** The script handles HTTP errors gracefully but logs other exceptions to the console.  
+* **Scalability:** This script is single-threaded and may need optimization for crawling large websites.
+
+---
+
+## **Example Output**
+
+Sample `error_details.csv`:
+
+| Page\_URL | Resource\_URL | Error\_Code |
+| ----- | ----- | ----- |
+| [https://example.com](https://example.com) | https://example.com/style.css | 404 |
+| [https://example.com](https://example.com) | https://example.com/script.js | 403 |
+
+---
 
 ## **License**
 
-This project is licensed under the MIT License \- see the [LICENSE](https://chat.deepseek.com/a/chat/s/LICENSE) file for details.
-
-## **Contact**
-
-For questions or feedback, please contact morteza\_taleblou@yahoo.com.
+This script is open-source and available for personal and educational use. Feel free to modify it to suit your needs.
 
