@@ -44,22 +44,22 @@ python
 Copy code  
 `start_url = 'https://www.example.com'`
 
-1. 
+
 
 **Configure Maximum Pages:** Update the `max_pages` variable to limit the number of pages to crawl (default is 10,000):  
 python  
 Copy code  
 `max_pages = 10000`
 
-2. 
+
 
 **Run the Script:** Execute the script in your Python environment:  
 bash  
 Copy code  
 `python main.py`
 
-3.   
-4. **View Results:**  
+ 
+**View Results:**  
    * If broken resource links are found, they will be saved to a file named `error_details.csv` in the script's directory.  
    * If no errors are detected, a message will indicate no error pages were saved.
 
